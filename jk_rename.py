@@ -129,14 +129,25 @@ class UI(QtWidgets.QDialog):
     def create_widgets(self):
         self.cwRenameTools = self.renameToolsLayout()
         self.cwPrefixSuffix = self.prefixSuffixLayout()
+        self.cwQuickSuffix = self.quickSuffixLayout()
         self.cwSearchAndReplace = self.searchAndReplaceLayout()
         self.cwUtilities = self.utilitiesLayout()
 
     def renameToolsLayout(self):
-        return CollapsibleWidget("Rename Tools")
+        renameToolsWidget = CollapsibleWidget("Rename Tools")
+        renameLayout = QtWidgets.QHBoxLayout()
+        renameLabel = QtWidgets.QLabel('Rename: ')
+        renameField = QtWidgets.QLineEdit()
+        renameLayout.addWidget(renameLabel)
+        renameLayout.addWidget(renameField)
+        renameToolsWidget.addLayout(renameLayout)
+        return renameToolsWidget
 
     def prefixSuffixLayout(self):
         return CollapsibleWidget("Prefix - Suffix")
+
+    def quickSuffixLayout(self):
+        return CollapsibleWidget("Quick Suffix")
 
     def searchAndReplaceLayout(self):
         return CollapsibleWidget("Search and Replace")
@@ -146,7 +157,6 @@ class UI(QtWidgets.QDialog):
 
     def create_layout(self):
         self.bodyWidget = QtWidgets.QWidget()
-
         self.bodyLayout = QtWidgets.QVBoxLayout(self.bodyWidget)
         self.bodyLayout.setContentsMargins(4, 2, 4, 2)
         self.bodyLayout.setSpacing(3)
@@ -154,6 +164,7 @@ class UI(QtWidgets.QDialog):
 
         self.bodyLayout.addWidget(self.cwRenameTools)
         self.bodyLayout.addWidget(self.cwPrefixSuffix)
+        self.bodyLayout.addWidget(self.cwQuickSuffix)
         self.bodyLayout.addWidget(self.cwSearchAndReplace)
         self.bodyLayout.addWidget(self.cwUtilities)
 
