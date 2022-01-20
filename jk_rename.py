@@ -102,6 +102,10 @@ class UI(QtWidgets.QDialog):
 
     WINDOW_TITLE = "jk_rename"
     qmwInstance = None
+    suffix = ['grp', 'joint', 'anim', 'loc', 'crv',
+              'ik', 'geo', 'proxyGeo', 'set', 'eff', 'dummy',
+              'const', 'Oconst', 'Pconst', 'POconst', 'Aconst'
+              ]
 
     @classmethod
     def show_UI(cls):
@@ -135,19 +139,45 @@ class UI(QtWidgets.QDialog):
 
     def renameToolsLayout(self):
         renameToolsWidget = CollapsibleWidget("Rename Tools")
+
+        parentLayout = QtWidgets.QVBoxLayout()
+
         renameLayout = QtWidgets.QHBoxLayout()
         renameLabel = QtWidgets.QLabel('Rename: ')
         renameField = QtWidgets.QLineEdit()
         renameLayout.addWidget(renameLabel)
         renameLayout.addWidget(renameField)
-        renameToolsWidget.addLayout(renameLayout)
+
+        paddingLayout = QtWidgets.QHBoxLayout()
+        startLabel = QtWidgets.QLabel('Start #:')
+        start = QtWidgets.QLineEdit('1')
+        paddingLabel = QtWidgets.QLabel('Padding:')
+        padding = QtWidgets.QLineEdit('1')
+        paddingLayout.addWidget(startLabel)
+        paddingLayout.addWidget(start)
+        paddingLayout.addWidget(paddingLabel)
+        paddingLayout.addWidget(padding)
+        renameButton = QtWidgets.QPushButton('Rename and Number')
+
+        parentLayout.addLayout(renameLayout)
+        parentLayout.addLayout(paddingLayout)
+        parentLayout.addWidget(renameButton)
+        renameToolsWidget.addLayout(parentLayout)
         return renameToolsWidget
 
     def prefixSuffixLayout(self):
         return CollapsibleWidget("Prefix - Suffix")
 
     def quickSuffixLayout(self):
-        return CollapsibleWidget("Quick Suffix")
+        quickSuffixWidget = CollapsibleWidget("Quick Suffix")
+        quickSuffixLayout = QtWidgets.QGridLayout()
+
+        for i in range(len(self.suffix)):
+            quickSuffixLayout.addWidget(
+                QtWidgets.QPushButton(self.suffix[i]),  i - i % 5, i % 5)
+
+        quickSuffixWidget.addLayout(quickSuffixLayout)
+        return quickSuffixWidget
 
     def searchAndReplaceLayout(self):
         return CollapsibleWidget("Search and Replace")
