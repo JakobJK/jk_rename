@@ -18,86 +18,6 @@ def getMainWindow():
     return mainWindow
 
 
-class CollapsibleHeader(QtWidgets.QWidget):
-
-    COLLAPSED_PIXMAP = QtGui.QPixmap(":teRightArrow.png")
-    EXPANDED_PIXMAP = QtGui.QPixmap(":teDownArrow.png")
-
-    clicked = QtCore.Signal()
-
-    def __init__(self, text, parent=None):
-        super(CollapsibleHeader, self).__init__(parent)
-
-        self.setAutoFillBackground(True)
-
-        self.iconLabel = QtWidgets.QLabel()
-        self.iconLabel.setFixedWidth(self.COLLAPSED_PIXMAP.width())
-        textLabel = QtWidgets.QLabel()
-        textLabel.setText("<b>{0}</b>".format(text))
-        textLabel.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
-
-        self.mainLayout = QtWidgets.QHBoxLayout(self)
-        self.mainLayout.setContentsMargins(4, 4, 4, 4)
-        self.mainLayout.addWidget(self.iconLabel)
-        self.mainLayout.addWidget(textLabel)
-
-        palette = self.palette()
-        color = QtGui.QColor.fromRgbF(0.364706, 0.364706, 0.364706, 1.000000)
-        palette.setColor(QtGui.QPalette.Window, color)
-        self.setPalette(palette)
-        self.setExpanded(False)
-
-    def isExpanded(self):
-        return self.expanded
-
-    def setExpanded(self, _expanded):
-        self.expanded = _expanded
-
-        if(self.expanded):
-            self.iconLabel.setPixmap(self.EXPANDED_PIXMAP)
-        else:
-            self.iconLabel.setPixmap(self.COLLAPSED_PIXMAP)
-
-    def mouseReleaseEvent(self, event):
-        self.clicked.emit()
-
-
-class CollapsibleWidget(QtWidgets.QWidget):
-
-    def __init__(self, text, parent=None):
-        super(CollapsibleWidget, self).__init__(parent)
-
-        self.header = CollapsibleHeader(text)
-        self.header.clicked.connect(
-            self.onHeaderClicked)
-
-        self.body = QtWidgets.QWidget()
-
-        self.bodyLayout = QtWidgets.QVBoxLayout(self.body)
-        self.bodyLayout.setContentsMargins(4, 2, 4, 2)
-        self.bodyLayout.setSpacing(3)
-
-        self.mainLayout = QtWidgets.QVBoxLayout(self)
-        self.mainLayout.setContentsMargins(0, 0, 0, 0)
-        self.mainLayout.addWidget(self.header)
-        self.mainLayout.addWidget(self.body)
-
-        self.setExpanded(False)
-
-    def addWidget(self, widget):
-        self.bodyLayout.addWidget(widget)
-
-    def addLayout(self, layout):
-        self.bodyLayout.addLayout(layout)
-
-    def setExpanded(self, expanded):
-        self.header.setExpanded(expanded)
-        self.body.setVisible(expanded)
-
-    def onHeaderClicked(self):
-        self.setExpanded(not self.header.isExpanded())
-
-
 class UI(QtWidgets.QDialog):
 
     WINDOW_TITLE = "jk_rename"
@@ -206,6 +126,86 @@ class UI(QtWidgets.QDialog):
         mainLayout = QtWidgets.QVBoxLayout(self)
         mainLayout.setContentsMargins(0, 0, 0, 0)
         mainLayout.addWidget(self.bodyScrollArea)
+
+
+class CollapsibleHeader(QtWidgets.QWidget):
+
+    COLLAPSED_PIXMAP = QtGui.QPixmap(":teRightArrow.png")
+    EXPANDED_PIXMAP = QtGui.QPixmap(":teDownArrow.png")
+
+    clicked = QtCore.Signal()
+
+    def __init__(self, text, parent=None):
+        super(CollapsibleHeader, self).__init__(parent)
+
+        self.setAutoFillBackground(True)
+
+        self.iconLabel = QtWidgets.QLabel()
+        self.iconLabel.setFixedWidth(self.COLLAPSED_PIXMAP.width())
+        textLabel = QtWidgets.QLabel()
+        textLabel.setText("<b>{0}</b>".format(text))
+        textLabel.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents)
+
+        self.mainLayout = QtWidgets.QHBoxLayout(self)
+        self.mainLayout.setContentsMargins(4, 4, 4, 4)
+        self.mainLayout.addWidget(self.iconLabel)
+        self.mainLayout.addWidget(textLabel)
+
+        palette = self.palette()
+        color = QtGui.QColor.fromRgbF(0.364706, 0.364706, 0.364706, 1.000000)
+        palette.setColor(QtGui.QPalette.Window, color)
+        self.setPalette(palette)
+        self.setExpanded(False)
+
+    def isExpanded(self):
+        return self.expanded
+
+    def setExpanded(self, _expanded):
+        self.expanded = _expanded
+
+        if(self.expanded):
+            self.iconLabel.setPixmap(self.EXPANDED_PIXMAP)
+        else:
+            self.iconLabel.setPixmap(self.COLLAPSED_PIXMAP)
+
+    def mouseReleaseEvent(self, event):
+        self.clicked.emit()
+
+
+class CollapsibleWidget(QtWidgets.QWidget):
+
+    def __init__(self, text, parent=None):
+        super(CollapsibleWidget, self).__init__(parent)
+
+        self.header = CollapsibleHeader(text)
+        self.header.clicked.connect(
+            self.onHeaderClicked)
+
+        self.body = QtWidgets.QWidget()
+
+        self.bodyLayout = QtWidgets.QVBoxLayout(self.body)
+        self.bodyLayout.setContentsMargins(4, 2, 4, 2)
+        self.bodyLayout.setSpacing(3)
+
+        self.mainLayout = QtWidgets.QVBoxLayout(self)
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout.addWidget(self.header)
+        self.mainLayout.addWidget(self.body)
+
+        self.setExpanded(False)
+
+    def addWidget(self, widget):
+        self.bodyLayout.addWidget(widget)
+
+    def addLayout(self, layout):
+        self.bodyLayout.addLayout(layout)
+
+    def setExpanded(self, expanded):
+        self.header.setExpanded(expanded)
+        self.body.setVisible(expanded)
+
+    def onHeaderClicked(self):
+        self.setExpanded(not self.header.isExpanded())
 
 
 if __name__ == '__main__':
