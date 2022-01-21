@@ -58,13 +58,14 @@ class UI(QtWidgets.QDialog):
         self.cwUtilities = self.utilitiesLayout()
 
     def renameToolsLayout(self):
-        renameToolsWidget = CollapsibleWidget("Rename Tools")
+        renameToolsWidget = CollapsibleWidget("Rename Tools", True)
 
         parentLayout = QtWidgets.QVBoxLayout()
 
         renameLayout = QtWidgets.QHBoxLayout()
-        renameLabel = QtWidgets.QLabel('Rename: ')
+        renameLabel = QtWidgets.QLabel('Hash Rename: ')
         renameField = QtWidgets.QLineEdit()
+        renameField.setPlaceholderText('exampleName_####_%type%')
         renameLayout.addWidget(renameLabel)
         renameLayout.addWidget(renameField)
 
@@ -86,24 +87,101 @@ class UI(QtWidgets.QDialog):
         return renameToolsWidget
 
     def prefixSuffixLayout(self):
-        return CollapsibleWidget("Prefix - Suffix")
+        prefixSuffixWidget = CollapsibleWidget("Prefix - Suffix", True)
+
+        parentLayout = QtWidgets.QVBoxLayout()
+        prefixSuffixWidget.addLayout(parentLayout)
+
+        prefixLayout = QtWidgets.QHBoxLayout()
+        suffixLayout = QtWidgets.QHBoxLayout()
+        parentLayout.addLayout(prefixLayout)
+        parentLayout.addLayout(suffixLayout)
+
+        prefixLabel = QtWidgets.QLabel('Prefix: ')
+        prefixLabel.setFixedSize(60, 10)
+
+        prefixLineEdit = QtWidgets.QLineEdit()
+        prefixButton = QtWidgets.QPushButton('Add')
+
+        prefixLayout.addWidget(prefixLabel)
+        prefixLayout.addWidget(prefixLineEdit)
+        prefixLayout.addWidget(prefixButton)
+
+        suffixLabel = QtWidgets.QLabel('Suffix: ')
+        suffixLabel.setFixedSize(60, 10)
+
+        suffixLineEdit = QtWidgets.QLineEdit()
+        suffixButton = QtWidgets.QPushButton('Add')
+
+        suffixLayout.addWidget(suffixLabel)
+        suffixLayout.addWidget(suffixLineEdit)
+        suffixLayout.addWidget(suffixButton)
+
+        return prefixSuffixWidget
 
     def quickSuffixLayout(self):
-        quickSuffixWidget = CollapsibleWidget("Quick Suffix")
+        quickSuffixWidget = CollapsibleWidget("Quick Suffix", False)
         quickSuffixLayout = QtWidgets.QGridLayout()
 
         for i in range(len(self.suffix)):
             quickSuffixLayout.addWidget(
-                QtWidgets.QPushButton(self.suffix[i]),  i - i % 5, i % 5)
+                QtWidgets.QPushButton(self.suffix[i]),  i - i % 4, i % 4)
 
         quickSuffixWidget.addLayout(quickSuffixLayout)
         return quickSuffixWidget
 
     def searchAndReplaceLayout(self):
-        return CollapsibleWidget("Search and Replace")
+        searchAndReplaceWidget = CollapsibleWidget("Search and Replace", True)
+        parentLayout = QtWidgets.QVBoxLayout()
+        searchAndReplaceWidget.addLayout(parentLayout)
+
+        searchLayout = QtWidgets.QHBoxLayout()
+        replaceLayout = QtWidgets.QHBoxLayout()
+        optionLayout = QtWidgets.QHBoxLayout()
+        buttonLayout = QtWidgets.QVBoxLayout()
+
+        buttonLayout.addWidget(QtWidgets.QPushButton('Apply'))
+        parentLayout.addLayout(searchLayout)
+        parentLayout.addLayout(replaceLayout)
+        parentLayout.addLayout(optionLayout)
+        parentLayout.addLayout(buttonLayout)
+
+        searchLabel = QtWidgets.QLabel('Search: ')
+        searchLabel.setFixedSize(60, 10)
+        searchLineEdit = QtWidgets.QLineEdit()
+
+        searchLayout.addWidget(searchLabel)
+        searchLayout.addWidget(searchLineEdit)
+
+        replaceLabel = QtWidgets.QLabel('Replace: ')
+        replaceLabel.setFixedSize(60, 10)
+        replaceLineEdit = QtWidgets.QLineEdit()
+
+        replaceLayout.addWidget(replaceLabel)
+        replaceLayout.addWidget(replaceLineEdit)
+
+        optionLayout.addStretch()
+        optionLayout.addWidget(QtWidgets.QRadioButton('Hierachy'))
+        optionLayout.addStretch()
+        optionLayout.addWidget(QtWidgets.QRadioButton('Selected'))
+        optionLayout.addStretch()
+        optionLayout.addWidget(QtWidgets.QRadioButton('All'))
+        optionLayout.addStretch()
+
+        return searchAndReplaceWidget
+
+    def searchAndReplaceState(self):
+        pass
 
     def utilitiesLayout(self):
-        return CollapsibleWidget("Utilities")
+        utilitiesWidget = CollapsibleWidget("Utilities", True)
+        parentLayout = QtWidgets.QVBoxLayout()
+        parentLayout.addWidget(QtWidgets.QPushButton('Rename Shapes'))
+        parentLayout.addWidget(
+            QtWidgets.QPushButton('Selected Duplicated Names'))
+        utilitiesWidget.addLayout(parentLayout)
+
+        return utilitiesWidget
 
     def create_layout(self):
         self.bodyWidget = QtWidgets.QWidget()
@@ -155,7 +233,7 @@ class CollapsibleHeader(QtWidgets.QWidget):
         color = QtGui.QColor.fromRgbF(0.364706, 0.364706, 0.364706, 1.000000)
         palette.setColor(QtGui.QPalette.Window, color)
         self.setPalette(palette)
-        self.setExpanded(False)
+        self.setExpanded(True)
 
     def isExpanded(self):
         return self.expanded
@@ -174,7 +252,7 @@ class CollapsibleHeader(QtWidgets.QWidget):
 
 class CollapsibleWidget(QtWidgets.QWidget):
 
-    def __init__(self, text, parent=None):
+    def __init__(self, text, expanded=False, parent=None):
         super(CollapsibleWidget, self).__init__(parent)
 
         self.header = CollapsibleHeader(text)
@@ -192,7 +270,7 @@ class CollapsibleWidget(QtWidgets.QWidget):
         self.mainLayout.addWidget(self.header)
         self.mainLayout.addWidget(self.body)
 
-        self.setExpanded(False)
+        self.setExpanded(expanded)
 
     def addWidget(self, widget):
         self.bodyLayout.addWidget(widget)
