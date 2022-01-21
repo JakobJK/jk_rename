@@ -47,10 +47,10 @@ class UI(QtWidgets.QDialog):
         elif cmds.about(macOS=True):
             self.setWindowFlags(QtCore.Qt.Tool)
 
-        self.create_widgets()
-        self.create_layout()
+        self.createWidgets()
+        self.createLayout()
 
-    def create_widgets(self):
+    def createWidgets(self):
         self.cwRenameTools = self.renameToolsLayout()
         self.cwPrefixSuffix = self.prefixSuffixLayout()
         self.cwQuickSuffix = self.quickSuffixLayout()
@@ -65,7 +65,7 @@ class UI(QtWidgets.QDialog):
         renameLayout = QtWidgets.QHBoxLayout()
         renameLabel = QtWidgets.QLabel('Hash Rename: ')
         renameField = QtWidgets.QLineEdit()
-        renameField.setPlaceholderText('exampleName_####_%type%')
+        renameField.setPlaceholderText('exampleName_####_<Type>')
         renameLayout.addWidget(renameLabel)
         renameLayout.addWidget(renameField)
 
@@ -183,7 +183,7 @@ class UI(QtWidgets.QDialog):
 
         return utilitiesWidget
 
-    def create_layout(self):
+    def createLayout(self):
         self.bodyWidget = QtWidgets.QWidget()
         self.bodyLayout = QtWidgets.QVBoxLayout(self.bodyWidget)
         self.bodyLayout.setContentsMargins(4, 2, 4, 2)
