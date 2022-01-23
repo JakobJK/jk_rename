@@ -65,11 +65,12 @@ class UI(QtWidgets.QDialog):
 
         renameLayout = QtWidgets.QHBoxLayout()
         renameLabel = QtWidgets.QLabel('Rename: ')
-        renameField = QtWidgets.QLineEdit()
-        renameField.setPlaceholderText('exampleName_####_<Type>')
+        self.renameField = QtWidgets.QLineEdit()
+        self.renameField.setPlaceholderText('exampleName_####_<Type>')
         renameLayout.addWidget(renameLabel)
-        renameLayout.addWidget(renameField)
+        renameLayout.addWidget(self.renameField)
         renameButton = QtWidgets.QPushButton('Rename and Number')
+        renameButton.clicked.connect(self.rename)
 
         parentLayout.addLayout(renameLayout)
         parentLayout.addWidget(renameButton)
@@ -203,7 +204,7 @@ class UI(QtWidgets.QDialog):
         removeFirstCharBtn = QtWidgets.QPushButton('Remove First Character')
         removeFirstCharBtn.clicked.connect(self.removeFirstChar)
         removeLastCharBtn = QtWidgets.QPushButton('Remove Last Character')
-        removeFirstCharBtn.clicked.connect(self.removeLastChar)
+        removeLastCharBtn.clicked.connect(self.removeLastChar)
         removeCharLayout = QtWidgets.QHBoxLayout()
         removeCharLayout.addWidget(removeFirstCharBtn)
         removeCharLayout.addWidget(removeLastCharBtn)
@@ -234,7 +235,7 @@ class UI(QtWidgets.QDialog):
                 toSelect = toSelect = shortNames[key]
 
         if len(toSelect) == 0:
-            print('No Duplicated Names')
+            cmds.warning('No Duplicated Names')
         else:
             cmds.select(toSelect)
 
@@ -255,6 +256,27 @@ class UI(QtWidgets.QDialog):
                 cmds.rename(obj, shortname[:-1])
             except:
                 print('Error')
+
+    def rename(self):
+        newName = self.renameField.text()
+        if '#' not in newName:
+            newName += '#'
+        if not self.validateHashes(newName):
+            return cmds.warning('Invalid hash block')
+
+        amountOfHashes = newName.count('#')
+
+        num = 1
+
+        sel = cmds.ls(sl=True, long=True)
+        for obj in sel:
+            cmds.rename(obj, newName.replace('#' * amountOfHashes,
+                                             str(num).rjust(amountOfHashes, '0')))
+            num += 1
+
+    def validateHashes(self, s):
+        amountOfHashes = s.count('#')
+        return amountOfHashes * '#' in s
 
     def createLayout(self):
         self.bodyWidget = QtWidgets.QWidget()
