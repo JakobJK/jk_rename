@@ -55,6 +55,7 @@ class UI(QtWidgets.QDialog):
         self.cwPrefixSuffix = self.prefixSuffixLayout()
         self.cwQuickSuffix = self.quickSuffixLayout()
         self.cwSearchAndReplace = self.searchAndReplaceLayout()
+        self.cwTagsOverride = self.tagsOverrideLayout()
         self.cwUtilities = self.utilitiesLayout()
 
     def renameToolsLayout(self):
@@ -63,25 +64,14 @@ class UI(QtWidgets.QDialog):
         parentLayout = QtWidgets.QVBoxLayout()
 
         renameLayout = QtWidgets.QHBoxLayout()
-        renameLabel = QtWidgets.QLabel('Hash Rename: ')
+        renameLabel = QtWidgets.QLabel('Rename: ')
         renameField = QtWidgets.QLineEdit()
         renameField.setPlaceholderText('exampleName_####_<Type>')
         renameLayout.addWidget(renameLabel)
         renameLayout.addWidget(renameField)
-
-        paddingLayout = QtWidgets.QHBoxLayout()
-        startLabel = QtWidgets.QLabel('Start #:')
-        start = QtWidgets.QLineEdit('1')
-        paddingLabel = QtWidgets.QLabel('Padding:')
-        padding = QtWidgets.QLineEdit('1')
-        paddingLayout.addWidget(startLabel)
-        paddingLayout.addWidget(start)
-        paddingLayout.addWidget(paddingLabel)
-        paddingLayout.addWidget(padding)
         renameButton = QtWidgets.QPushButton('Rename and Number')
 
         parentLayout.addLayout(renameLayout)
-        parentLayout.addLayout(paddingLayout)
         parentLayout.addWidget(renameButton)
         renameToolsWidget.addLayout(parentLayout)
         return renameToolsWidget
@@ -100,24 +90,33 @@ class UI(QtWidgets.QDialog):
         prefixLabel = QtWidgets.QLabel('Prefix: ')
         prefixLabel.setFixedSize(60, 10)
 
-        prefixLineEdit = QtWidgets.QLineEdit()
+        self.prefixLineEdit = QtWidgets.QLineEdit()
         prefixButton = QtWidgets.QPushButton('Add')
+        prefixButton.clicked.connect(self.addPrefix)
 
         prefixLayout.addWidget(prefixLabel)
-        prefixLayout.addWidget(prefixLineEdit)
+        prefixLayout.addWidget(self.prefixLineEdit)
         prefixLayout.addWidget(prefixButton)
 
         suffixLabel = QtWidgets.QLabel('Suffix: ')
         suffixLabel.setFixedSize(60, 10)
 
-        suffixLineEdit = QtWidgets.QLineEdit()
+        self.suffixLineEdit = QtWidgets.QLineEdit()
         suffixButton = QtWidgets.QPushButton('Add')
+        suffixButton.clicked.connect(self.addSuffix)
 
         suffixLayout.addWidget(suffixLabel)
-        suffixLayout.addWidget(suffixLineEdit)
+        suffixLayout.addWidget(self.suffixLineEdit)
         suffixLayout.addWidget(suffixButton)
 
         return prefixSuffixWidget
+
+    def addPrefix(self):
+        prefix = self.prefixLineEdit.text()
+        print(prefix)
+
+    def addSuffix(self):
+        print('Suffix')
 
     def quickSuffixLayout(self):
         quickSuffixWidget = CollapsibleWidget("Quick Suffix", False)
@@ -161,11 +160,15 @@ class UI(QtWidgets.QDialog):
         replaceLayout.addWidget(replaceLineEdit)
 
         optionLayout.addStretch()
-        optionLayout.addWidget(QtWidgets.QRadioButton('Hierachy'))
+        hierachyBtn = QtWidgets.QRadioButton('Hierachy')
+        optionLayout.addWidget(hierachyBtn)
         optionLayout.addStretch()
-        optionLayout.addWidget(QtWidgets.QRadioButton('Selected'))
+        selectedBtn = QtWidgets.QRadioButton('Selected')
+        selectedBtn.setChecked(True)
+        optionLayout.addWidget(selectedBtn)
         optionLayout.addStretch()
-        optionLayout.addWidget(QtWidgets.QRadioButton('All'))
+        allBtn = QtWidgets.QRadioButton('All')
+        optionLayout.addWidget(allBtn)
         optionLayout.addStretch()
 
         return searchAndReplaceWidget
@@ -173,15 +176,62 @@ class UI(QtWidgets.QDialog):
     def searchAndReplaceState(self):
         pass
 
+    def tagsOverrideLayout(self):
+        tagsOverrideWidget = CollapsibleWidget("Tags Override", False)
+        parentLayout = QtWidgets.QVBoxLayout()
+        tags = [{'longName': 'Group', 'tag': 'grp'}]
+        self.tagLineEdit = {}
+
+        for currentTag in tags:
+            name = currentTag['longName']
+            tag = currentTag['tag']
+            tagLayout = QtWidgets.QHBoxLayout()
+            tagLabel = QtWidgets.QLabel(name)
+            tagLabel.setFixedSize(60, 25)
+            self.tagLineEdit[tag] = QtWidgets.QLineEdit()
+            self.tagLineEdit[tag].setPlaceholderText(tag)
+            tagLayout.addWidget(tagLabel)
+            tagLayout.addWidget(self.tagLineEdit[tag])
+            parentLayout.addLayout(tagLayout)
+
+        tagsOverrideWidget.addLayout(parentLayout)
+        return tagsOverrideWidget
+
     def utilitiesLayout(self):
         utilitiesWidget = CollapsibleWidget("Utilities", True)
         parentLayout = QtWidgets.QVBoxLayout()
+        removeFirstCharBtn = QtWidgets.QPushButton('Remove First Character')
+        removeFirstCharBtn.clicked.connect(self.removeFirstChar)
+        removeLastCharBtn = QtWidgets.QPushButton('Remove Last Character')
+        removeFirstCharBtn.clicked.connect(self.removeLastChar)
+        removeCharLayout = QtWidgets.QHBoxLayout()
+        removeCharLayout.addWidget(removeFirstCharBtn)
+        removeCharLayout.addWidget(removeLastCharBtn)
+        parentLayout.addLayout(removeCharLayout)
         parentLayout.addWidget(QtWidgets.QPushButton('Rename Shapes'))
         parentLayout.addWidget(
             QtWidgets.QPushButton('Selected Duplicated Names'))
         utilitiesWidget.addLayout(parentLayout)
 
         return utilitiesWidget
+
+    def removeFirstChar(self):
+        sel = cmds.ls(sl=True, long=True)
+        for obj in sel:
+            shortname = obj.split('|')[-1]
+            try:
+                cmds.rename(obj, shortname[1:])
+            except:
+                print('Error')
+
+    def removeLastChar(self):
+        sel = cmds.ls(sl=True, long=True)
+        for obj in sel:
+            shortname = obj.split('|')[-1]
+            try:
+                cmds.rename(obj, shortname[:-1])
+            except:
+                print('Error')
 
     def createLayout(self):
         self.bodyWidget = QtWidgets.QWidget()
@@ -194,6 +244,7 @@ class UI(QtWidgets.QDialog):
         self.bodyLayout.addWidget(self.cwPrefixSuffix)
         self.bodyLayout.addWidget(self.cwQuickSuffix)
         self.bodyLayout.addWidget(self.cwSearchAndReplace)
+        self.bodyLayout.addWidget(self.cwTagsOverride)
         self.bodyLayout.addWidget(self.cwUtilities)
 
         self.bodyScrollArea = QtWidgets.QScrollArea()
