@@ -209,11 +209,34 @@ class UI(QtWidgets.QDialog):
         removeCharLayout.addWidget(removeLastCharBtn)
         parentLayout.addLayout(removeCharLayout)
         parentLayout.addWidget(QtWidgets.QPushButton('Rename Shapes'))
-        parentLayout.addWidget(
-            QtWidgets.QPushButton('Selected Duplicated Names'))
+        selDuplicatedNamesBtn = QtWidgets.QPushButton(
+            'Selected Duplicated Names')
+        selDuplicatedNamesBtn.clicked.connect(self.selectedDuplicatedNames)
+        parentLayout.addWidget(selDuplicatedNamesBtn)
         utilitiesWidget.addLayout(parentLayout)
 
         return utilitiesWidget
+
+    def selectedDuplicatedNames(self):
+        shortNames = {}
+        toSelect = []
+
+        items = cmds.ls(long=True)
+        for obj in items:
+            shortName = obj.split('|')[-1]
+            if shortName in shortNames:
+                shortNames[shortName].append(obj)
+            else:
+                shortNames[shortName] = [obj]
+
+        for key in shortNames:
+            if len(shortNames[key]) > 1:
+                toSelect = toSelect = shortNames[key]
+
+        if len(toSelect) == 0:
+            print('No Duplicated Names')
+        else:
+            cmds.select(toSelect)
 
     def removeFirstChar(self):
         sel = cmds.ls(sl=True, long=True)
