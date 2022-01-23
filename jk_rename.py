@@ -65,6 +65,7 @@ class UI(QtWidgets.QDialog):
 
         renameLayout = QtWidgets.QHBoxLayout()
         renameLabel = QtWidgets.QLabel('Rename: ')
+        renameLabel.setFixedWidth(60)
         self.renameField = QtWidgets.QLineEdit()
         self.renameField.setPlaceholderText('exampleName_####_<Type>')
         renameLayout.addWidget(renameLabel)
@@ -89,7 +90,7 @@ class UI(QtWidgets.QDialog):
         parentLayout.addLayout(suffixLayout)
 
         prefixLabel = QtWidgets.QLabel('Prefix: ')
-        prefixLabel.setFixedSize(60, 10)
+        prefixLabel.setFixedWidth(60)
 
         self.prefixLineEdit = QtWidgets.QLineEdit()
         prefixButton = QtWidgets.QPushButton('Add')
@@ -100,7 +101,7 @@ class UI(QtWidgets.QDialog):
         prefixLayout.addWidget(prefixButton)
 
         suffixLabel = QtWidgets.QLabel('Suffix: ')
-        suffixLabel.setFixedSize(60, 10)
+        suffixLabel.setFixedWidth(60)
 
         self.suffixLineEdit = QtWidgets.QLineEdit()
         suffixButton = QtWidgets.QPushButton('Add')
@@ -188,7 +189,7 @@ class UI(QtWidgets.QDialog):
             tag = currentTag['tag']
             tagLayout = QtWidgets.QHBoxLayout()
             tagLabel = QtWidgets.QLabel(name)
-            tagLabel.setFixedSize(60, 25)
+            tagLabel.setFixedWidth(60)
             self.tagLineEdit[tag] = QtWidgets.QLineEdit()
             self.tagLineEdit[tag].setPlaceholderText(tag)
             tagLayout.addWidget(tagLabel)
