@@ -1,6 +1,6 @@
 """
     jk_rename v.0.1.0
-    A renamer for Autodesk Maya inspired by wp_rename by William Petruccelli
+    A renamer for Autodesk Maya inspired by WP_Rename by William Petruccelli
     Contact: jakobjk@gmail.com
     https://github.com/JakobJK/jk_rename
 """
@@ -267,13 +267,16 @@ class UI(QtWidgets.QDialog):
 
         amountOfHashes = newName.count('#')
 
-        num = 1
-
         sel = cmds.ls(sl=True, long=True)
-        for obj in sel:
-            cmds.rename(obj, newName.replace('#' * amountOfHashes,
-                                             str(num).rjust(amountOfHashes, '0')))
-            num += 1
+        objList = []
+        for idx, obj in enumerate(sel):
+            objList.append({'name': obj, 'rank': obj.count('|'), 'index': idx})
+
+        sortedList = sorted(objList, key=lambda obj: obj['rank'], reverse=True)
+        for obj in sortedList:
+            padding = str(obj['index'] + 1).rjust(amountOfHashes, '0')
+            toName = newName.replace('#' * amountOfHashes, padding)
+            cmds.rename(obj['name'], toName)
 
     def validateHashes(self, s):
         amountOfHashes = s.count('#')
