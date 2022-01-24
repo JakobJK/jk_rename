@@ -115,10 +115,33 @@ class UI(QtWidgets.QDialog):
 
     def addPrefix(self):
         prefix = self.prefixLineEdit.text()
-        print(prefix)
+        sel = cmds.ls(sl=True, long=True)
+        objList = []
+        for obj in sel:
+            objList.append({'name': obj, 'order': obj.count('|')})
+        sortedList = sorted(
+            objList, key=lambda obj: obj['order'], reverse=True)
+        for obj in sortedList:
+            shortname = obj['name'].split('|')[-1]
+            try:
+                cmds.rename(obj['name'], prefix + shortname)
+            except:
+                print('Error')
 
     def addSuffix(self):
-        print('Suffix')
+        suffix = self.suffixLineEdit.text()
+        sel = cmds.ls(sl=True, long=True)
+        objList = []
+        for obj in sel:
+            objList.append({'name': obj, 'order': obj.count('|')})
+        sortedList = sorted(
+            objList, key=lambda obj: obj['order'], reverse=True)
+        for obj in sortedList:
+            shortname = obj['name'].split('|')[-1]
+            try:
+                cmds.rename(obj['name'], shortname + suffix)
+            except:
+                print('Error')
 
     def quickSuffixLayout(self):
         quickSuffixWidget = CollapsibleWidget("Quick Suffix", False)
@@ -141,7 +164,9 @@ class UI(QtWidgets.QDialog):
         optionLayout = QtWidgets.QHBoxLayout()
         buttonLayout = QtWidgets.QVBoxLayout()
 
-        buttonLayout.addWidget(QtWidgets.QPushButton('Apply'))
+        searchAndReplaceBtn = QtWidgets.QPushButton('Apply')
+        searchAndReplaceBtn.clicked.connect(self.searchAndReplace)
+        buttonLayout.addWidget(searchAndReplaceBtn)
         parentLayout.addLayout(searchLayout)
         parentLayout.addLayout(replaceLayout)
         parentLayout.addLayout(optionLayout)
@@ -149,17 +174,17 @@ class UI(QtWidgets.QDialog):
 
         searchLabel = QtWidgets.QLabel('Search: ')
         searchLabel.setFixedSize(60, 10)
-        searchLineEdit = QtWidgets.QLineEdit()
+        self.searchLineEdit = QtWidgets.QLineEdit()
 
         searchLayout.addWidget(searchLabel)
-        searchLayout.addWidget(searchLineEdit)
+        searchLayout.addWidget(self.searchLineEdit)
 
         replaceLabel = QtWidgets.QLabel('Replace: ')
         replaceLabel.setFixedSize(60, 10)
-        replaceLineEdit = QtWidgets.QLineEdit()
+        self.replaceLineEdit = QtWidgets.QLineEdit()
 
         replaceLayout.addWidget(replaceLabel)
-        replaceLayout.addWidget(replaceLineEdit)
+        replaceLayout.addWidget(self.replaceLineEdit)
 
         optionLayout.addStretch()
         hierachyBtn = QtWidgets.QRadioButton('Hierachy')
@@ -174,6 +199,26 @@ class UI(QtWidgets.QDialog):
         optionLayout.addStretch()
 
         return searchAndReplaceWidget
+
+    def searchAndReplace(self):
+        search = self.searchLineEdit.text()
+        replace = self.replaceLineEdit.text()
+
+        sel = cmds.ls(sl=True, long=True)
+        objList = []
+        for obj in sel:
+            objList.append({'name': obj, 'order': obj.count('|')})
+        sortedList = sorted(
+            objList, key=lambda obj: obj['order'], reverse=True)
+        for obj in sortedList:
+            shortname = obj['name'].split('|')[-1]
+            if search in shortname:
+                try:
+                    cmds.rename(
+                        obj['name'], shortname.replace(search, replace))
+                except:
+                    print('Error')
+        pass
 
     def searchAndReplaceState(self):
         pass
@@ -242,19 +287,29 @@ class UI(QtWidgets.QDialog):
 
     def removeFirstChar(self):
         sel = cmds.ls(sl=True, long=True)
+        objList = []
         for obj in sel:
-            shortname = obj.split('|')[-1]
+            objList.append({'name': obj, 'order': obj.count('|')})
+        sortedList = sorted(
+            objList, key=lambda obj: obj['order'], reverse=True)
+        for obj in sortedList:
+            shortname = obj['name'].split('|')[-1]
             try:
-                cmds.rename(obj, shortname[1:])
+                cmds.rename(obj['name'], shortname[1:])
             except:
                 print('Error')
 
     def removeLastChar(self):
         sel = cmds.ls(sl=True, long=True)
+        objList = []
         for obj in sel:
-            shortname = obj.split('|')[-1]
+            objList.append({'name': obj, 'order': obj.count('|')})
+        sortedList = sorted(
+            objList, key=lambda obj: obj['order'], reverse=True)
+        for obj in sortedList:
+            shortname = obj['name'].split('|')[-1]
             try:
-                cmds.rename(obj, shortname[:-1])
+                cmds.rename(obj['name'], shortname[:-1])
             except:
                 print('Error')
 
@@ -270,17 +325,42 @@ class UI(QtWidgets.QDialog):
         sel = cmds.ls(sl=True, long=True)
         objList = []
         for idx, obj in enumerate(sel):
-            objList.append({'name': obj, 'rank': obj.count('|'), 'index': idx})
-
-        sortedList = sorted(objList, key=lambda obj: obj['rank'], reverse=True)
+            objList.append(
+                {'name': obj, 'order': obj.count('|'), 'index': idx})
+        sortedList = sorted(
+            objList, key=lambda obj: obj['order'], reverse=True)
         for obj in sortedList:
             padding = str(obj['index'] + 1).rjust(amountOfHashes, '0')
             toName = newName.replace('#' * amountOfHashes, padding)
+            if '<Type>' in toName:
+                toName = toName.replace('<Type>', self.nodeType(obj['name']))
+            print(toName)
             cmds.rename(obj['name'], toName)
 
     def validateHashes(self, s):
         amountOfHashes = s.count('#')
         return amountOfHashes * '#' in s
+
+    def nodeType(self, node):
+        transformNode = cmds.nodeType(node)
+        if transformNode == 'joint':
+            return 'joint'
+        elif transformNode == 'transform':
+            shapes = cmds.listRelatives(node, shapes=True, fullPath=True)
+            if not shapes:
+                return 'group'
+            type = cmds.nodeType(shapes[0])
+            if type == 'locator':
+                return 'loc'
+            elif type == 'clusterHandle':
+                return 'cluster'
+            elif 'Light' in type:
+                return 'lit'
+            elif 'mesh' in type:
+                return 'geo'
+            elif type == 'curve':
+                return 'crv'
+        return 'unknown'
 
     def createLayout(self):
         self.bodyWidget = QtWidgets.QWidget()
