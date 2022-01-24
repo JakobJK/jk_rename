@@ -22,10 +22,6 @@ class UI(QtWidgets.QDialog):
 
     WINDOW_TITLE = "jk_rename"
     qmwInstance = None
-    suffix = ['grp', 'joint', 'anim', 'loc', 'crv',
-              'ik', 'geo', 'proxyGeo', 'set', 'eff', 'dummy',
-              'const', 'Oconst', 'Pconst', 'POconst', 'Aconst'
-              ]
 
     @classmethod
     def show_UI(cls):
@@ -53,7 +49,6 @@ class UI(QtWidgets.QDialog):
     def createWidgets(self):
         self.cwRenameTools = self.renameToolsLayout()
         self.cwPrefixSuffix = self.prefixSuffixLayout()
-        self.cwQuickSuffix = self.quickSuffixLayout()
         self.cwSearchAndReplace = self.searchAndReplaceLayout()
         self.cwTagsOverride = self.tagsOverrideLayout()
         self.cwUtilities = self.utilitiesLayout()
@@ -142,17 +137,6 @@ class UI(QtWidgets.QDialog):
                 cmds.rename(obj['name'], shortname + suffix)
             except:
                 print('Error')
-
-    def quickSuffixLayout(self):
-        quickSuffixWidget = CollapsibleWidget("Quick Suffix", False)
-        quickSuffixLayout = QtWidgets.QGridLayout()
-
-        for i in range(len(self.suffix)):
-            quickSuffixLayout.addWidget(
-                QtWidgets.QPushButton(self.suffix[i]),  i - i % 4, i % 4)
-
-        quickSuffixWidget.addLayout(quickSuffixLayout)
-        return quickSuffixWidget
 
     def searchAndReplaceLayout(self):
         searchAndReplaceWidget = CollapsibleWidget("Search and Replace", True)
@@ -278,7 +262,7 @@ class UI(QtWidgets.QDialog):
 
         for key in shortNames:
             if len(shortNames[key]) > 1:
-                toSelect = toSelect = shortNames[key]
+                toSelect = toSelect + shortNames[key]
 
         if len(toSelect) == 0:
             cmds.warning('No Duplicated Names')
@@ -334,7 +318,6 @@ class UI(QtWidgets.QDialog):
             toName = newName.replace('#' * amountOfHashes, padding)
             if '<Type>' in toName:
                 toName = toName.replace('<Type>', self.nodeType(obj['name']))
-            print(toName)
             cmds.rename(obj['name'], toName)
 
     def validateHashes(self, s):
@@ -371,7 +354,6 @@ class UI(QtWidgets.QDialog):
 
         self.bodyLayout.addWidget(self.cwRenameTools)
         self.bodyLayout.addWidget(self.cwPrefixSuffix)
-        self.bodyLayout.addWidget(self.cwQuickSuffix)
         self.bodyLayout.addWidget(self.cwSearchAndReplace)
         self.bodyLayout.addWidget(self.cwTagsOverride)
         self.bodyLayout.addWidget(self.cwUtilities)
