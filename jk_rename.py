@@ -249,20 +249,12 @@ class UI(QtWidgets.QDialog):
         return utilitiesWidget
 
     def selectedDuplicatedNames(self):
-        shortNames = {}
         toSelect = []
 
-        items = cmds.ls(long=True)
+        items = cmds.ls()
         for obj in items:
-            shortName = obj.split('|')[-1]
-            if shortName in shortNames:
-                shortNames[shortName].append(obj)
-            else:
-                shortNames[shortName] = [obj]
-
-        for key in shortNames:
-            if len(shortNames[key]) > 1:
-                toSelect = toSelect + shortNames[key]
+            if '|' in obj:
+                toSelect.append(obj)
 
         if len(toSelect) == 0:
             cmds.warning('No Duplicated Names')
@@ -327,11 +319,11 @@ class UI(QtWidgets.QDialog):
     def nodeType(self, node):
         transformNode = cmds.nodeType(node)
         if transformNode == 'joint':
-            return 'joint'
+            return 'jnt'
         elif transformNode == 'transform':
             shapes = cmds.listRelatives(node, shapes=True, fullPath=True)
             if not shapes:
-                return 'group'
+                return 'grp'
             type = cmds.nodeType(shapes[0])
             if type == 'locator':
                 return 'loc'
@@ -343,7 +335,10 @@ class UI(QtWidgets.QDialog):
                 return 'geo'
             elif type == 'curve':
                 return 'crv'
-        return 'unknown'
+            elif type == 'camera':
+                return 'cam'
+            else:
+                return 'NA'
 
     def createLayout(self):
         self.bodyWidget = QtWidgets.QWidget()
