@@ -250,8 +250,7 @@ class UI(QtWidgets.QDialog):
 
     def selectedDuplicatedNames(self):
         toSelect = []
-
-        items = cmds.ls()
+        items = cmds.ls(transforms=True)
         for obj in items:
             if '|' in obj:
                 toSelect.append(obj)
